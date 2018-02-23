@@ -1,12 +1,13 @@
-== install ==
+## install ##
 How to build on debian, (deps and install requires sudo)
 
+```shell
 git clone https://github.com/alexxroche/morse.git
 cd morse/src
 make deps && make m && make install # into /usr/local/bin/morse
 morse
-
-== info ==
+```
+## info ##
 
 Information about this program can be found on the distribution site:
 
