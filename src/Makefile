@@ -2,7 +2,8 @@
 # To compile on MacOSX I used 10.6 with XCode dev tools and then
 # used MacPorts to install fltk 1.1.7 and libsdl 1.2.13 
 FLTK_LIBS=`fltk-config --ldstaticflags`
-SDL_LIBS=`sdl-config --static-libs`
+SDL_LIBS=`pkg-config --cflags --libs sdl`
+#SDL_LIBS=`sdl-config --static-libs`
 CC=g++
 CFLGAGS=
 # This may need to be changed for you. These are the X11 libraries used by
@@ -46,8 +47,9 @@ m.exe: m.fl Bargraph.o Codebox.o Cw.cxx Cw.h Knob.cxx Knob.h Help.h m.o
 
 # Regular "make" is what you want for the Linux version
 m: m.fl Bargraph.o Codebox.o Cw.o Knob.o Help.h m.o
-	g++ -static -om m.o Bargraph.o Codebox.o Cw.o Knob.o \
-	  `sdl-config --static-libs` \
+	#g++ -static -om m.o Bargraph.o Codebox.o Cw.o Knob.o \
+	g++ -om m.o Bargraph.o Codebox.o Cw.o Knob.o \
+	  $(SDL_LIBS) \
 	  `fltk-config --ldstaticflags` -ldl
 	strip m
 	rm *.o m.cxx m.h
@@ -63,15 +65,21 @@ Codebox.o: Codebox.cxx Codebox.h
 Knob.o: Knob.cxx Knob.h
 	g++ -c -Os `fltk-config --cxxflags` Knob.cxx
 Cw.o: Cw.cxx Cw.h
-	g++ -c -Os `sdl-config    --cflags` Cw.cxx
+	g++ -c -Os $(SDL_LIBS) Cw.cxx
 
 # Besemer's Python extension version
 cw.so: cw.pyx Cw.cxx Cw.h
 	pyrexc cw.pyx
 	gcc -c -fPIC -I/usr/include/python2.5 cw.c
-	gcc -c -fPIC `sdl-config --cflags` Cw.cxx
-	g++ -shared cw.o Cw.o -static `sdl-config --static-libs` -ocw.so
+	gcc -c -fPIC $(SDL_LIBS) Cw.cxx
+	g++ -shared cw.o Cw.o -static $(SDL_LIBS) -ocw.so
 	rm cw.c *.o
 
 Help.h: m.htm
 	./help.py <m.htm >Help.h
+
+install:
+	sudo cp -i m /usr/local/bin/morse
+
+deps:
+	sudo apt-get install -y libfltk1.3-dev libsdl1.2-dev
